@@ -1,0 +1,16 @@
+﻿@model DBTask.Controllers.LetterModel
+@{
+    ViewData["Title"] = "Street";
+}
+
+<h2>Street</h2>
+<form method="post">
+    <select asp-for="Street" asp-items="@Model.StreetsList"></select>
+    <input type="text" asp-for="House" placeholder="д." />
+    <input type="text" asp-for="Flat" placeholder="кв." />
+    <input type="hidden" asp-for="Code1" />
+    <input type="hidden" asp-for="Code2" />
+    <input type="hidden" asp-for="Code3" /><br /><br />
+    @Html.ActionLink("Назад", "City", Model)
+    <button type="submit">Далее</button>
+</form>

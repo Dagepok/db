@@ -1,0 +1,15 @@
+﻿@model DBTask.Controllers.LetterModel
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Index</h2>
+
+<form method="post">
+    <select asp-for="Region" asp-items="@Model.RegionsList"></select>
+    <input type="hidden" asp-for="Code1"/>
+    <input type="hidden" asp-for="Code2"/>
+    <input type="hidden" asp-for="Code3"/><br /><br />
+    <button type="submit">Далее</button>
+</form>
+
