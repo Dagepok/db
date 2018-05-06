@@ -16,7 +16,9 @@ namespace DBTask.Controllers
         public string Street { get; set; }
         public SelectList StreetsList { get; set; }
 
+        public SelectList HouseList { get; set; }
         public string House { get; set; }
+
         public string Flat { get; set; }
 
         public string User { get; set; }

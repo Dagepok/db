@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -14,7 +15,7 @@ namespace DBTask.Controllers
     [Authorize(Roles = "admin")]
     public class LetterController : Controller
     {
-        private PinchukContext context;
+        private readonly PinchukContext context;
 
         public LetterController(PinchukContext context)
         {
@@ -64,6 +65,10 @@ namespace DBTask.Controllers
                 .OrderBy(x => x.Name).Select(x =>
                     x.Name + " " + context.Socrbase.FirstOrDefault(y => y.Level == "2" && y.Scname == x.Socr).Socrname).ToList();
 
+            for(var i = 0; i < rayons.Count; i++)
+                if (rayons[i] == null)
+                    rayons[i] = "Без района";
+
             model.RayonsList = new SelectList(rayons);
 
             return View(model);
@@ -79,13 +84,43 @@ namespace DBTask.Controllers
         [HttpGet]
         public IActionResult City(LetterModel model)
         {
+            var socr = new HashSet<string>
+            {
+                "АО",
+                "Аобл",
+                "г",
+                "край",
+                "обл",
+                "Респ",
+                "р-н",
+                "тер",
+                "у",
+                "волость",
+                "г",
+                "дп",
+                "кп",
+                "пгт",
+                "п/о",
+                "рп",
+                "с/а",
+                "с/тер",
+                "с/о",
+                "с/мо",
+                "с/пос",
+                "с/с",
+                "тер"
+            };
+
             var regex2 = new Regex($"{model.Code1}[0-9]{{3}}0{{8}}");
-            model.Code2 = context.Kladr.Where(x => regex2.IsMatch(x.Code) && model.Rayon.StartsWith(x.Name)).First().Code
-                .Substring(0, 5);
+            if (model.Rayon == "Без района")
+                model.Code2 = model.Code1 + "000";
+            else
+                model.Code2 = context.Kladr.First(x => regex2.IsMatch(x.Code) && (model.Rayon == "Без района" || model.Rayon.StartsWith(x.Name))).Code
+                    .Substring(0, 5);
 
             var regex3 = new Regex($"{model.Code2}[0-9]{{8}}");
             var regex4 = new Regex($"{model.Code2}0{{8}}");
-            var cities = context.Kladr.Where(x => regex3.IsMatch(x.Code) && !regex4.IsMatch(x.Code))
+            var cities = context.Kladr.Where(x => regex3.IsMatch(x.Code) && !regex4.IsMatch(x.Code) && (model.Rayon == "Без района" && socr.Contains(x.Socr) || model.Rayon != "Без района"))
                 .OrderBy(x => x.Name).Select(x =>
                 x.Name + " " + context.Socrbase.FirstOrDefault(y => y.Level != "1" && y.Level != "2" && y.Scname == x.Socr).Socrname).ToList();
 
@@ -106,7 +141,7 @@ namespace DBTask.Controllers
         {
             var regex3 = new Regex($"{model.Code2}[0-9]{{6}}");
             model.Code3 = context.Kladr.First(x => regex3.IsMatch(x.Code) && model.City.StartsWith(x.Name)).Code
-                .Substring(0, 13);
+                .Substring(0, 11);
 
             var streets = context.Street.Where(x => EF.Functions.Like(x.Code, $"{model.Code3}%")).Select(x =>
                 x.Name + " " + x.Socrname/* + " " + context.Socrbase.FirstOrDefault(y => int.Parse(y.Level) > 3 && y.Scname == x.Socr)
@@ -120,6 +155,26 @@ namespace DBTask.Controllers
         [HttpPost]
         [ActionName("Street")]
         public IActionResult StreetPost(LetterModel model)
+        {
+            return RedirectToAction("House", model);
+        }
+
+        [HttpGet]
+        public IActionResult House(LetterModel model)
+        {
+            var code = context.Street.First(x => EF.Functions.Like(x.Code, model.Code3 + '%') && model.Street.StartsWith(x.Name)).Code + '%';
+
+            var houses = context.Doma.Where(x => EF.Functions.Like(x.Code, code)).ToList();
+
+            model.HouseList = new SelectList(houses.SelectMany(x => x.Name.Split(",", StringSplitOptions.RemoveEmptyEntries))
+                .OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ActionName("House")]
+        public IActionResult HousePost(LetterModel model)
         {
             return RedirectToAction("User", model);
         }

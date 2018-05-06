@@ -1,11 +1,12 @@
 ﻿@model DBTask.Controllers.LetterModel
 @{
-    ViewData["Title"] = "City";
+    ViewData["Title"] = "House";
 }
 
-<h2>City</h2>
+<h2>House</h2>
 <form method="post">
-    <select asp-for="City" asp-items="@Model.CitiesList"></select>
+    <select asp-for="House" asp-items="@Model.HouseList"></select>
+    <input type="text" asp-for="Flat" placeholder="кв." />
     <input type="hidden" asp-for="Code1" />
     <input type="hidden" asp-for="Code2" />
     <input type="hidden" asp-for="Code3" /><br /><br />
