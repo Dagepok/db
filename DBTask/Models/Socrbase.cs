@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace DBTask.Models
+﻿namespace DBTask.Models
 {
-    public partial class Socrbase
+    public class Socrbase
     {
         public string Level { get; set; }
         public string Scname { get; set; }

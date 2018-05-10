@@ -1,0 +1,18 @@
+﻿@model DBTask.Controllers.AddressModel
+@{
+    ViewData["Title"] = "ChangeRegion";
+}
+
+<h2>ChangeOblast</h2>
+
+<form method="post">
+    <select asp-for="Code" asp-items="@Model.ItemsList" id="address-dropdown"></select>
+    <br/><br/>
+    <button type="submit">Сохранить</button>
+</form>
+
+@*<script>
+    $(document).ready(function() {
+        $('#address-dropdown').select2();
+    });
+</script>*@

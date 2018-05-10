@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace DBTask.Models
+﻿namespace DBTask.Models
 {
-    public partial class Altnames
+    public class Altnames
     {
         public string Oldcode { get; set; }
         public string Newcode { get; set; }

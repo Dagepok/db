@@ -1,10 +1,8 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace DBTask.Models
 {
-    public partial class PinchukContext : DbContext
+    public class PinchukContext : DbContext
     {
         public virtual DbSet<Altnames> Altnames { get; set; }
         public virtual DbSet<Doma> Doma { get; set; }
@@ -21,7 +19,8 @@ namespace DBTask.Models
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer(@"Server=DESKTOP-E5JOGLU\SQLEXPRESS;Database=Pinchuk;Trusted_Connection=True;");
+                optionsBuilder.UseSqlServer(
+                    @"Server=DESKTOP-E5JOGLU\SQLEXPRESS;Database=Pinchuk;Trusted_Connection=True;");
             }
         }
 
@@ -29,7 +28,7 @@ namespace DBTask.Models
         {
             modelBuilder.Entity<Altnames>(entity =>
             {
-                entity.HasKey(e => new { e.Oldcode, e.Newcode, e.Level });
+                entity.HasKey(e => new {e.Oldcode, e.Newcode, e.Level});
 
                 entity.ToTable("ALTNAMES");
 
@@ -51,7 +50,7 @@ namespace DBTask.Models
 
             modelBuilder.Entity<Doma>(entity =>
             {
-                entity.HasKey(e => new { e.Name, e.Korp, e.Socr, e.Code });
+                entity.HasKey(e => new {e.Name, e.Korp, e.Socr, e.Code});
 
                 entity.ToTable("DOMA");
 
@@ -98,7 +97,7 @@ namespace DBTask.Models
 
             modelBuilder.Entity<Kladr>(entity =>
             {
-                entity.HasKey(e => new { e.Name, e.Code });
+                entity.HasKey(e => new {e.Name, e.Code});
 
                 entity.ToTable("KLADR");
 
@@ -145,7 +144,7 @@ namespace DBTask.Models
 
             modelBuilder.Entity<Socrbase>(entity =>
             {
-                entity.HasKey(e => new { e.Level, e.Scname });
+                entity.HasKey(e => new {e.Level, e.Scname});
 
                 entity.ToTable("SOCRBASE");
 
@@ -172,7 +171,7 @@ namespace DBTask.Models
 
             modelBuilder.Entity<Street>(entity =>
             {
-                entity.HasKey(e => new { e.Name, e.Socr, e.Code });
+                entity.HasKey(e => new {e.Name, e.Socr, e.Code});
 
                 entity.ToTable("STREET");
 

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace DBTask.Models
+﻿namespace DBTask.Models
 {
-    public partial class Doma
+    public class Doma
     {
         public string Name { get; set; }
         public string Korp { get; set; }

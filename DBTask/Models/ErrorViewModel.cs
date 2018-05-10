@@ -1,5 +1,3 @@
-using System;
-
 namespace DBTask.Models
 {
     public class ErrorViewModel

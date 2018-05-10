@@ -73,3 +73,23 @@ SET SOCRNAME = (SELECT TOP(1) SOCRNAME FROM SOCRBASE WHERE SOCR=SCNAME AND CAST(
 
 CREATE INDEX code_doma_index
 ON DOMA(CODE)
+
+SELECT * FROM USERS
+
+ALTER TABLE USERS
+ADD 
+OblastCode varchar(max),
+Oblast varchar(max),
+RayonCode varchar(max),
+Rayon varchar(max),
+CityCode varchar(max),
+City varchar(max),
+StreetCode varchar(max),
+Street varchar(max),
+House varchar(max),
+Flat varchar(max),
+Village varchar(max),
+VillageCode varchar(max)
+
+ALTER TABLE USERS
+ADD [Index] varchar(max)

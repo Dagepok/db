@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using DBTask.DAL;
@@ -14,11 +13,11 @@ namespace DBTask.Controllers
 {
     public class AccountController : Controller
     {
-        private UsersRepository repo;
+        private readonly UsersRepository _repo;
 
         public AccountController(UsersRepository repo)
         {
-            this.repo = repo;
+            _repo = repo;
         }
 
         [HttpGet]
@@ -34,7 +33,7 @@ namespace DBTask.Controllers
             if (ModelState.IsValid)
             {
                 var password = HashPassword(model.Password);
-                var user = repo.GetUserByLoginAndPassword(model.Username, password);
+                var user = _repo.GetUserByLoginAndPassword(model.Username, password);
 
                 if (user != null)
                 {
@@ -61,12 +60,12 @@ namespace DBTask.Controllers
             {
                 try
                 {
-                    var user = repo.GetUserByLogin(model.Username);
+                    var user = _repo.GetUserByLogin(model.Username);
                 }
                 catch (Exception)
                 {
                     var hash = HashPassword(model.Password);
-                    repo.AddUser(model.Username, hash, UserType.User, model.FullName);
+                    _repo.AddUser(model.Username, hash, UserType.User, model.FullName);
                     await Authenticate(model.Username);
 
                     return RedirectToAction("Index", "Home");
@@ -84,7 +83,7 @@ namespace DBTask.Controllers
                 new Claim(ClaimsIdentity.DefaultNameClaimType, login)
             };
 
-            if(repo.GetUserByLogin(login).Type == UserType.Admin)
+            if (_repo.GetUserByLogin(login).Type == UserType.Admin)
                 claims.Add(new Claim(ClaimTypes.Role, "admin"));
 
             var id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType,
@@ -102,7 +101,7 @@ namespace DBTask.Controllers
         {
             var hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
                 password,
-                new byte[0], 
+                new byte[0],
                 KeyDerivationPrf.HMACSHA256,
                 10000,
                 256 / 8));

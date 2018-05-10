@@ -6,12 +6,11 @@
 <h2>Index</h2>
 
 <form method="post">
-    <select asp-for="Region" asp-items="@Model.RegionsList"></select>
-    <input type="hidden" asp-for="Code1"/>
-    <input type="hidden" asp-for="Code2"/>
-    <input type="hidden" asp-for="Code3"/>
+    <select multiple="multiple" asp-for="SelectedIds" asp-items="@Model.Items" id="address-dropdown" class="form-control"></select>
     <br/>
     <br/>
-    <button type="submit">Далее</button>
+    <textarea class="form-control" asp-for="Text" placeholder="Текст письма..." style="height: 400px;"></textarea>
+    <br/>
+    <br/>
+    <button type="submit">Загрузить файл</button>
 </form>
-
