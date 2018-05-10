@@ -79,7 +79,7 @@ namespace DBTask.Controllers
 
             var house = user.House + (user.Flat != null ? " кв. " + user.Flat : "");
             foreach (var str in new[]
-                {user.Index, user.Oblast, user.Rayon, user.City, user.Village, user.Street, house})
+                {user.Index, user.Oblast, user.Rayon, user.City, user.Village, user.Street, house, user.Fullname})
             {
                 if (string.IsNullOrEmpty(str)) continue;
                 var run = new Run(docx, str);
