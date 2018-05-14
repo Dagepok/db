@@ -22,7 +22,7 @@ namespace DBTask
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-            services.AddDbContext<PinchukContext>();
+            services.AddDbContext<MyBDContext>();
             services.AddScoped<UsersRepository, UsersRepository>();
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

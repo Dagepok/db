@@ -13,9 +13,9 @@ namespace DBTask.Controllers
     [Authorize(Roles = "admin")]
     public class LetterController : Controller
     {
-        private readonly PinchukContext _context;
+        private readonly MyBDContext _context;
 
-        public LetterController(PinchukContext context)
+        public LetterController(MyBDContext context)
         {
             _context = context;
         }

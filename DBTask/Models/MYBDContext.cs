@@ -2,7 +2,7 @@
 
 namespace DBTask.Models
 {
-    public class PinchukContext : DbContext
+    public class MyBDContext : DbContext
     {
         public virtual DbSet<Altnames> Altnames { get; set; }
         public virtual DbSet<Doma> Doma { get; set; }
@@ -19,7 +19,7 @@ namespace DBTask.Models
             if (!optionsBuilder.IsConfigured)
             {
                 optionsBuilder.UseSqlServer(
-                    @"Server=DESKTOP-E5JOGLU\SQLEXPRESS;Database=Pinchuk;Trusted_Connection=True;");
+                    @"Server=.;Database=MYBD;User Id=sa;Password=Qwer1234");
             }
         }
 
@@ -218,8 +218,6 @@ namespace DBTask.Models
             modelBuilder.Entity<Users>(entity =>
             {
                 entity.ToTable("USERS");
-
-                //entity.Property(e => e.Id).ValueGeneratedOnAdd();
             });
         }
     }

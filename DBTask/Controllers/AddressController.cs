@@ -14,10 +14,10 @@ namespace DBTask.Controllers
     [Authorize]
     public class AddressController : Controller
     {
-        private readonly PinchukContext _context;
+        private readonly MyBDContext _context;
         private readonly UsersRepository _repo;
 
-        public AddressController(UsersRepository repo, PinchukContext context)
+        public AddressController(UsersRepository repo, MyBDContext context)
         {
             _repo = repo;
             _context = context;

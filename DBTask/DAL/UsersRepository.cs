@@ -6,10 +6,10 @@ namespace DBTask.DAL
 {
     public class UsersRepository
     {
-        private readonly PinchukContext _context;
+        private readonly MyBDContext _context;
         private readonly IHttpContextAccessor _httpAccessor;
 
-        public UsersRepository(PinchukContext context, IHttpContextAccessor httpAccessor)
+        public UsersRepository(MyBDContext context, IHttpContextAccessor httpAccessor)
         {
             _context = context;
             _httpAccessor = httpAccessor;
