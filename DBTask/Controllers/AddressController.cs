@@ -40,6 +40,8 @@ namespace DBTask.Controllers
                                .Select(y => y.Socrname).Single()
                 })
                 .ToList();
+            if (regions.Count == 0)
+                return RedirectToAction("Index");
 
             var sverdl = regions.FirstOrDefault(x => x.Text.StartsWith("Свердловская"));
             if (sverdl != null)
@@ -83,6 +85,9 @@ namespace DBTask.Controllers
                                .Select(y => y.Socrname).Single()
                 }).ToList();
 
+            if (rayons.Count == 0)
+                return RedirectToAction("Index");
+
             return View(new AddressModel(new SelectList(rayons, "Value", "Text")));
         }
 
@@ -121,6 +126,9 @@ namespace DBTask.Controllers
                                .Select(y => y.Socrname).First()
                 })
                 .ToList();
+
+            if (cities.Count == 0)
+                return RedirectToAction("Index");
 
             return View(new AddressModel(new SelectList(cities, "Value", "Text")));
         }
@@ -173,6 +181,9 @@ namespace DBTask.Controllers
                                .Select(y => y.Socrname).First()
                 })
                 .ToList();
+
+            if (villages.Count == 0)
+                return RedirectToAction("Index");
 
             return View(new AddressModel(new SelectList(villages, "Value", "Text")));
         }
@@ -242,8 +253,14 @@ namespace DBTask.Controllers
             else
                 return RedirectToAction("Index");
 
+            var regex = new Regex(@"\d+");
+
             var houses = _context.Doma.Where(x => EF.Functions.Like(x.Code, $"{precode}%"))
-                .SelectMany(x => x.Name.Split(',', StringSplitOptions.RemoveEmptyEntries)).OrderBy(x => x);
+                .SelectMany(x => x.Name.Split(',', StringSplitOptions.RemoveEmptyEntries)).OrderBy(x => int.Parse(regex.Match(x).Value));
+
+
+            if (!houses.Any())
+                return RedirectToAction("Index");
 
             return View(new HouseAndFlatModel(new SelectList(houses), precode));
         }
