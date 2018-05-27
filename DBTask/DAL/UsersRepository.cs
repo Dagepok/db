@@ -8,6 +8,7 @@ namespace DBTask.DAL
     {
         private readonly MyBDContext _context;
         private readonly IHttpContextAccessor _httpAccessor;
+        public static Users lastRegUser;
 
         public UsersRepository(MyBDContext context, IHttpContextAccessor httpAccessor)
         {
@@ -21,33 +22,31 @@ namespace DBTask.DAL
             return _context.Users.First(x => Equals(x.Username, username));
         }
 
-        public void AddUser(Users user)
+        public void DeleteUser(string login) => _context.Users.Remove(_context.Users.First(x => x.Username == login));
+
+        public Users AddUser(Users user)
         {
             var lastId = _context.Users.OrderByDescending(x => x.Id).First().Id;
             user.Id = lastId + 1;
 
             _context.Users.Add(user);
             _context.SaveChanges();
+            return user;
         }
 
-        public void AddUser(string username, string password, UserType type, string fullname)
-        {
-            AddUser(new Users {Username = username, Password = password, Type = type, Fullname = fullname});
-        }
+        public Users AddUser(string username, string password, UserType type, string fullname)
+            => AddUser(new Users { Username = username, Password = password, Type = type, Fullname = fullname });
 
         public Users GetUserByLoginAndPassword(string username, string password)
-        {
-            return _context.Users.FirstOrDefault(x => Equals(x.Username, username) && Equals(x.Password, password));
-        }
+            => _context.Users.FirstOrDefault(x => Equals(x.Username, username) && Equals(x.Password, password));
 
-        public Users GetUserByLogin(string username)
-        {
-            return _context.Users.First(x => Equals(x.Username, username));
-        }
 
-        public void AddRegion(string code, string name, string index)
+        public Users GetUserByLogin(string username) => _context.Users.First(x => Equals(x.Username, username));
+
+        public void AddRegion(string code, string name, string index, Users user = null)
         {
-            var user = GetCurrentUser();
+            if (user is null)
+                user = GetCurrentUser();
             user.OblastCode = code;
             user.Oblast = name;
             if (index != null)
@@ -68,9 +67,10 @@ namespace DBTask.DAL
             _context.SaveChanges();
         }
 
-        public void DeleteRegion()
+        public void DeleteRegion(Users user = null)
         {
-            var user = GetCurrentUser();
+            if (user is null)
+                user = GetCurrentUser();
 
             user.OblastCode = null;
             user.Oblast = null;
@@ -81,9 +81,10 @@ namespace DBTask.DAL
             _context.SaveChanges();
         }
 
-        public void AddRayon(string code, string name, string index)
+        public void AddRayon(string code, string name, string index, Users user = null)
         {
-            var user = GetCurrentUser();
+            if (user is null)
+                user = GetCurrentUser();
             user.RayonCode = code;
             user.Rayon = name;
             if (index != null)
@@ -102,9 +103,10 @@ namespace DBTask.DAL
             _context.SaveChanges();
         }
 
-        public void DeleteRayon()
+        public void DeleteRayon(Users user = null)
         {
-            var user = GetCurrentUser();
+            if (user is null)
+                user = GetCurrentUser();
 
             user.RayonCode = null;
             user.Rayon = null;
@@ -115,9 +117,10 @@ namespace DBTask.DAL
             _context.SaveChanges();
         }
 
-        public void AddCity(string code, string name, string index)
+        public void AddCity(string code, string name, string index, Users user = null)
         {
-            var user = GetCurrentUser();
+            if (user is null)
+                user = GetCurrentUser();
             user.CityCode = code;
             user.City = name;
             if (index != null)
@@ -135,10 +138,10 @@ namespace DBTask.DAL
         }
 
 
-        public void DeleteCity()
+        public void DeleteCity(Users user = null)
         {
-            var user = GetCurrentUser();
-
+            if (user is null)
+                user = GetCurrentUser();
             user.CityCode = null;
             user.City = null;
             user.Index = null;
@@ -148,9 +151,10 @@ namespace DBTask.DAL
             _context.SaveChanges();
         }
 
-        public void AddVillage(string code, string name, string index)
+        public void AddVillage(string code, string name, string index, Users user = null)
         {
-            var user = GetCurrentUser();
+            if (user is null)
+                user = GetCurrentUser();
             user.VillageCode = code;
             user.Village = name;
             if (index != null)
@@ -166,9 +170,10 @@ namespace DBTask.DAL
         }
 
 
-        public void DeleteVillage()
+        public void DeleteVillage(Users user = null)
         {
-            var user = GetCurrentUser();
+            if (user is null)
+                user = GetCurrentUser();
 
             user.VillageCode = null;
             user.Village = null;
@@ -179,9 +184,10 @@ namespace DBTask.DAL
             _context.SaveChanges();
         }
 
-        public void AddStreet(string code, string name, string index)
+        public void AddStreet(string code, string name, string index, Users user = null)
         {
-            var user = GetCurrentUser();
+            if (user is null)
+                user = GetCurrentUser();
             user.StreetCode = code;
             user.Street = name;
             if (index != null)
@@ -195,9 +201,10 @@ namespace DBTask.DAL
         }
 
 
-        public void DeleteStreet()
+        public void DeleteStreet(Users user = null)
         {
-            var user = GetCurrentUser();
+            if (user is null)
+                user = GetCurrentUser();
 
             user.StreetCode = null;
             user.Street = null;
@@ -208,9 +215,10 @@ namespace DBTask.DAL
             _context.SaveChanges();
         }
 
-        public void AddHouseAndFlat(string house, string flat, string index)
+        public void AddHouseAndFlat(string house, string flat, string index, Users user = null)
         {
-            var user = GetCurrentUser();
+            if (user is null)
+                user = GetCurrentUser();
             user.House = house;
             user.Flat = flat;
             if (index != null)
@@ -219,9 +227,10 @@ namespace DBTask.DAL
             _context.SaveChanges();
         }
 
-        public void DeleteHouseAndFlat()
+        public void DeleteHouseAndFlat(Users user = null)
         {
-            var user = GetCurrentUser();
+            if (user is null)
+                user = GetCurrentUser();
 
             user.House = null;
             user.Flat = null;

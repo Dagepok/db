@@ -56,6 +56,7 @@ namespace DBTask.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterModel model)
         {
+            
             if (ModelState.IsValid)
             {
                 try
@@ -63,10 +64,21 @@ namespace DBTask.Controllers
                     var user = _repo.GetUserByLogin(model.Username);
                 }
                 catch (Exception)
+               
                 {
                     var hash = HashPassword(model.Password);
-                    _repo.AddUser(model.Username, hash, UserType.User, model.FullName);
-                    await Authenticate(model.Username);
+                    //получить юзера без добавления в базу и отправить в создание адреса, с него добавить в базу
+                    var user = new Users { Username = model.Username, Password = HashPassword(model.Password), Fullname = model.FullName};
+                    
+                   
+                    
+                    //_repo.AddUser(model.Username, hash, UserType.User, model.FullName);
+                    UsersRepository.lastRegUser = _repo.AddUser(user);
+                    //await Authenticate(model.Username);
+                    return RedirectToAction("Index", "RegAddress");
+
+
+                  
 
                     return RedirectToAction("Index", "Home");
                 }

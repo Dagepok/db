@@ -1,0 +1,14 @@
+﻿@model DBTask.Controllers.HouseAndFlatModel
+@{
+    ViewData["Title"] = "Редактировать дом и квартиру";
+}
+
+<h2>Редактировать дом и квартиру</h2>
+
+<form method="post">
+    <select asp-for="House" asp-items="@Model.ItemsList" id="address-dropdown"></select>
+    <input type="text" asp-for="Flat" placeholder="кв."/>
+    <input type="hidden" asp-for="Precode"/>
+    <br/><br/>
+    <button type="submit">Сохранить</button>
+</form>

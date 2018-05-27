@@ -1,0 +1,59 @@
+﻿@model DBTask.Models.Users
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Адрес</h2>
+<div class="list-inline">
+    <br>
+    <div>
+        Регион:
+        @Model.Oblast
+        @Html.ActionLink("Изменить", "ChangeRegion")
+        @Html.ActionLink("Удалить", "DeleteRegion")
+    </div>
+    <br>
+    <div>
+        Район:
+        @Model.Rayon
+        @Html.ActionLink("Изменить", "ChangeRayon")
+        @Html.ActionLink("Удалить", "DeleteRayon")
+    </div>
+    <br>
+    <div>
+        Город:
+        @Model.City
+        @Html.ActionLink("Изменить", "ChangeCity")
+        @Html.ActionLink("Удалить", "DeleteCity")
+    </div>
+    <br>
+    <div>
+        Населенный пункт:
+        @Model.Village
+        @Html.ActionLink("Изменить", "ChangeVillage")
+        @Html.ActionLink("Удалить", "DeleteVillage")
+    </div>
+    <br />
+    <div>
+        Улица:
+        @Model.Street
+        @Html.ActionLink("Изменить", "ChangeStreet")
+        @Html.ActionLink("Удалить", "DeleteStreet")
+    </div>
+    <br />
+    <div>
+        Номер дома и квартиры:
+        @Model.House-@Model.Flat
+        @Html.ActionLink("Изменить", "ChangeHouseAndFlat")
+        @Html.ActionLink("Удалить", "DeleteHouseAndFlat")
+    </div>
+    <br>
+    <br>
+    Индекс : @Model.Index
+    <br>
+    <div>
+        @Html.ActionLink("Зарегистрироваться", "EndReg")
+        @Html.ActionLink("Назад", "CanselReg")
+    </div>
+</div>

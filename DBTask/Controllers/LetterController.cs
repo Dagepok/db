@@ -36,6 +36,8 @@ namespace DBTask.Controllers
         {
             //return Content(string.Join('\n', letterModel.SelectedIds));
             var docx = new DocumentCore();
+            if (letterModel.SelectedIds is null)
+                return RedirectToAction("Index");
             foreach (var id in letterModel.SelectedIds)
             {
                 var section = GetSectionForUser(docx, _context.Users.Single(x => x.Id == int.Parse(id)));
@@ -44,7 +46,7 @@ namespace DBTask.Controllers
 
                 var separators = new List<char>();
                 for (var i = 0; i < 32; i++)
-                    separators.Add((char) i);
+                    separators.Add((char)i);
 
                 for (var i = 0; i < 4; i++)
                 {
@@ -52,6 +54,7 @@ namespace DBTask.Controllers
                     par.Inlines.Add(run);
                 }
 
+                letterModel.Text = letterModel.Text ?? "";
                 var text = letterModel.Text.Split(separators.ToArray(), StringSplitOptions.RemoveEmptyEntries);
                 foreach (var str in text)
                 {
@@ -72,7 +75,7 @@ namespace DBTask.Controllers
 
         private static Section GetSectionForUser(DocumentCore docx, Users user)
         {
-            var section = new Section(docx) {PageSetup = {PaperType = PaperType.A4}};
+            var section = new Section(docx) { PageSetup = { PaperType = PaperType.A4 } };
 
             var par = new Paragraph(docx);
             section.Blocks.Add(par);

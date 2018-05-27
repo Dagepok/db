@@ -1,0 +1,12 @@
+﻿@model DBTask.Controllers.AddressModel
+@{
+    ViewData["Title"] = "Редактировать улицу";
+}
+
+<h2>Редактировать улицу</h2>
+
+<form method="post">
+    <select asp-for="Code" asp-items="@Model.ItemsList" id="address-dropdown"></select>
+    <br/><br/>
+    <button type="submit">Сохранить</button>
+</form>

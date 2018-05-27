@@ -1,23 +1,23 @@
 ﻿@model DBTask.Controllers.LoginModel;
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Вход";
 }
 
-<h2>Index</h2>
+<h2>Войдите</h2>
 
 <form asp-action="Index" asp-controller="Account" asp-anti-forgery="true" class="center-block">
     <div class="validation" asp-validation-summary="ModelOnly"/>
     <div>
         <div class="form-group">
-            <input type="text" asp-for="Username" class="form-control" placeholder="Login"/>
+            <input type="text" asp-for="Username" class="form-control" placeholder="Логин"/>
             <span asp-validation-for="Username"/>
         </div>
         <div class="form-group">
-            <input type="password" asp-for="Password" class="form-control" placeholder="Password"/>
+            <input type="password" asp-for="Password" class="form-control" placeholder="Пароль"/>
             <span asp-validation-for="Password"/>
         </div>
         <div class="form-group">
-            <input type="submit" value="Login" class="btn"/>
+            <input type="submit" value="Войти" class="btn"/>
         </div>
     </div>
 </form>

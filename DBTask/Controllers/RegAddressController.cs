@@ -1,23 +1,50 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using DBTask.DAL;
 using DBTask.Models;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace DBTask.Controllers
 {
-    [Authorize]
-    public class AddressController : Controller
+    public class RegAddressController : Controller
     {
         private readonly MyBDContext _context;
         private readonly UsersRepository _repo;
+        private async Task Authenticate(string login)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimsIdentity.DefaultNameClaimType, login)
+            };
 
-        public AddressController(UsersRepository repo, MyBDContext context)
+            if (_repo.GetUserByLogin(login).Type == UserType.Admin)
+                claims.Add(new Claim(ClaimTypes.Role, "admin"));
+
+            var id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType,
+                ClaimsIdentity.DefaultRoleClaimType);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
+        }
+        public async Task<IActionResult> EndReg()
+        {
+            await Authenticate(UsersRepository.lastRegUser.Username);
+            return RedirectToAction("Index", "Home");
+        }
+
+        public IActionResult CanselReg()
+        {
+            _repo.DeleteUser(UsersRepository.lastRegUser.Username);
+            UsersRepository.lastRegUser = null;
+            return RedirectToAction("Register", "Account");
+        }
+        public RegAddressController(UsersRepository repo, MyBDContext context)
         {
             _repo = repo;
             _context = context;
@@ -25,14 +52,8 @@ namespace DBTask.Controllers
 
         public IActionResult Index()
         {
-            return View(_repo.GetCurrentUser());
+            return View(UsersRepository.lastRegUser);
         }
-        [HttpPost]
-        public IActionResult Index(Users user)
-        {
-            return View(user);
-        }
-
         public IActionResult ChangeRegion()
         {
             var regex = new Regex("^[0-9]{2}0{11}");
@@ -52,7 +73,7 @@ namespace DBTask.Controllers
             if (sverdl != null)
             {
                 var oldRegions = regions;
-                regions = new List<SelectListItem> {sverdl};
+                regions = new List<SelectListItem> { sverdl };
                 oldRegions.Remove(sverdl);
                 regions.AddRange(oldRegions);
             }
@@ -69,19 +90,19 @@ namespace DBTask.Controllers
                                .Where(y => int.Parse(y.Level) == 1 && y.Scname == region.Socr)
                                .Select(y => y.Socrname).Single();
 
-            _repo.AddRegion(addressModel.Code, socrname, region.PostIndex);
+            _repo.AddRegion(addressModel.Code, socrname, region.PostIndex, UsersRepository.lastRegUser);
             return RedirectToAction("Index");
         }
 
         public IActionResult ChangeRayon()
         {
-            if (_repo.GetCurrentUser().OblastCode == null)
+            if (UsersRepository.lastRegUser.OblastCode == null)
                 return RedirectToAction("Index");
-            var precode = _repo.GetCurrentUser().OblastCode.Substring(0, 2);
+            var precode = UsersRepository.lastRegUser.OblastCode.Substring(0, 2);
             var regex = new Regex($"^{precode}[0-9]{{3}}0{{8}}");
 
             var rayons = _context.Kladr
-                .Where(x => regex.IsMatch(x.Code) && x.Code != _repo.GetCurrentUser().OblastCode)
+                .Where(x => regex.IsMatch(x.Code) && x.Code != UsersRepository.lastRegUser.OblastCode)
                 .OrderBy(x => x.Name)
                 .Select(x => new SelectListItem
                 {
@@ -103,25 +124,25 @@ namespace DBTask.Controllers
             var socrname = region.Name + " " + _context.Socrbase
                                .Where(y => int.Parse(y.Level) == 2 && y.Scname == region.Socr)
                                .Select(y => y.Socrname).Single();
-            _repo.AddRayon(addressModel.Code, socrname, region.PostIndex);
+            _repo.AddRayon(addressModel.Code, socrname, region.PostIndex, UsersRepository.lastRegUser);
             return RedirectToAction("Index");
         }
 
         public IActionResult ChangeCity()
         {
-            if (_repo.GetCurrentUser().RayonCode == null && _repo.GetCurrentUser().OblastCode == null)
+            if (UsersRepository.lastRegUser.RayonCode == null && UsersRepository.lastRegUser.OblastCode == null)
                 return RedirectToAction("Index");
-            var precode = _repo.GetCurrentUser().RayonCode == null
-                ? _repo.GetCurrentUser().OblastCode.Substring(0, 5)
-                : _repo.GetCurrentUser().RayonCode.Substring(0, 5);
+            var precode = UsersRepository.lastRegUser.RayonCode == null
+                ? UsersRepository.lastRegUser.OblastCode.Substring(0, 5)
+                : UsersRepository.lastRegUser.Rayon.Substring(0, 5);
             var regex = new Regex($"{precode}[0-9]{{3}}00000");
 
             var cities = _context.Kladr
-                .Where(x => regex.IsMatch(x.Code) && (_repo.GetCurrentUser().OblastCode != null &&
-                                                      _repo.GetCurrentUser().OblastCode != x.Code ||
-                                                      _repo.GetCurrentUser().OblastCode == null) &&
-                            (_repo.GetCurrentUser().RayonCode != null && _repo.GetCurrentUser().RayonCode != x.Code ||
-                             _repo.GetCurrentUser().RayonCode == null))
+                .Where(x => regex.IsMatch(x.Code) && (UsersRepository.lastRegUser.OblastCode != null &&
+                                                      UsersRepository.lastRegUser.OblastCode != x.Code ||
+                                                      UsersRepository.lastRegUser.OblastCode == null) &&
+                            (UsersRepository.lastRegUser.RayonCode != null && UsersRepository.lastRegUser.RayonCode != x.Code ||
+                             UsersRepository.lastRegUser.RayonCode == null))
                 .OrderBy(x => x.Name)
                 .Select(x => new SelectListItem
                 {
@@ -145,7 +166,7 @@ namespace DBTask.Controllers
             var socrname = region.Name + " " + _context.Socrbase.Where(y =>
                                    (int.Parse(y.Level) == 3 || int.Parse(y.Level) == 4) && region.Socr == y.Scname)
                                .Select(y => y.Socrname).First();
-            _repo.AddCity(addressModel.Code, socrname, region.PostIndex);
+            _repo.AddCity(addressModel.Code, socrname, region.PostIndex, UsersRepository.lastRegUser);
             return RedirectToAction("Index");
         }
 
@@ -153,20 +174,20 @@ namespace DBTask.Controllers
         {
             string precode, rayonCode, regionCode;
             var cityCode = rayonCode = regionCode = "";
-            if (_repo.GetCurrentUser().CityCode != null)
+            if (UsersRepository.lastRegUser.CityCode != null)
             {
-                precode = _repo.GetCurrentUser().CityCode.Substring(0, 8);
-                cityCode = _repo.GetCurrentUser().CityCode;
+                precode = UsersRepository.lastRegUser.CityCode.Substring(0, 8);
+                cityCode = UsersRepository.lastRegUser.CityCode;
             }
-            else if (_repo.GetCurrentUser().RayonCode != null)
+            else if (UsersRepository.lastRegUser.RayonCode != null)
             {
-                precode = _repo.GetCurrentUser().RayonCode.Substring(0, 8);
-                rayonCode = _repo.GetCurrentUser().RayonCode;
+                precode = UsersRepository.lastRegUser.RayonCode.Substring(0, 8);
+                rayonCode = UsersRepository.lastRegUser.RayonCode;
             }
-            else if (_repo.GetCurrentUser().OblastCode != null)
+            else if (UsersRepository.lastRegUser.OblastCode != null)
             {
-                precode = _repo.GetCurrentUser().OblastCode.Substring(0, 8);
-                regionCode = _repo.GetCurrentUser().OblastCode;
+                precode = UsersRepository.lastRegUser.OblastCode.Substring(0, 8);
+                regionCode = UsersRepository.lastRegUser.OblastCode;
             }
             else
             {
@@ -201,7 +222,7 @@ namespace DBTask.Controllers
                                    int.Parse(y.Level) >= 3 && int.Parse(y.Level) <= 5 && village.Socr == y.Scname)
                                .Select(y => y.Socrname).First();
 
-            _repo.AddVillage(addressModel.Code, socrname, village.PostIndex);
+            _repo.AddVillage(addressModel.Code, socrname, village.PostIndex, UsersRepository.lastRegUser);
             return RedirectToAction("Index");
         }
 
@@ -209,14 +230,14 @@ namespace DBTask.Controllers
         {
             string precode;
 
-            if (_repo.GetCurrentUser().VillageCode != null)
-                precode = _repo.GetCurrentUser().VillageCode.Substring(0, 11);
-            else if (_repo.GetCurrentUser().CityCode != null)
-                precode = _repo.GetCurrentUser().CityCode.Substring(0, 11);
-            else if (_repo.GetCurrentUser().RayonCode != null)
-                precode = _repo.GetCurrentUser().RayonCode.Substring(0, 11);
-            else if (_repo.GetCurrentUser().OblastCode != null)
-                precode = _repo.GetCurrentUser().OblastCode.Substring(0, 11);
+            if (UsersRepository.lastRegUser.VillageCode != null)
+                precode = UsersRepository.lastRegUser.VillageCode.Substring(0, 11);
+            else if (UsersRepository.lastRegUser.CityCode != null)
+                precode = UsersRepository.lastRegUser.CityCode.Substring(0, 11);
+            else if (UsersRepository.lastRegUser.RayonCode != null)
+                precode = UsersRepository.lastRegUser.RayonCode.Substring(0, 11);
+            else if (UsersRepository.lastRegUser.OblastCode != null)
+                precode = UsersRepository.lastRegUser.OblastCode.Substring(0, 11);
             else
                 return RedirectToAction("Index");
 
@@ -238,23 +259,23 @@ namespace DBTask.Controllers
         public IActionResult ChangeStreet(AddressModel addressModel)
         {
             var street = _context.Street.Single(x => x.Code == addressModel.Code);
-            _repo.AddStreet(addressModel.Code, street.Name + " " + street.Socrname, street.Index);
+            _repo.AddStreet(addressModel.Code, street.Name + " " + street.Socrname, street.Index, UsersRepository.lastRegUser);
             return RedirectToAction("Index");
         }
 
         public IActionResult ChangeHouseAndFlat()
         {
             string precode;
-            if (_repo.GetCurrentUser().StreetCode != null)
-                precode = _repo.GetCurrentUser().StreetCode.Substring(0, 15);
-            else if (_repo.GetCurrentUser().VillageCode != null)
-                precode = _repo.GetCurrentUser().VillageCode.Substring(0, 15);
-            else if (_repo.GetCurrentUser().CityCode != null)
-                precode = _repo.GetCurrentUser().CityCode.Substring(0, 15);
-            else if (_repo.GetCurrentUser().RayonCode != null)
-                precode = _repo.GetCurrentUser().RayonCode.Substring(0, 15);
-            else if (_repo.GetCurrentUser().OblastCode != null)
-                precode = _repo.GetCurrentUser().OblastCode.Substring(0, 15);
+            if (UsersRepository.lastRegUser.StreetCode != null)
+                precode = UsersRepository.lastRegUser.StreetCode.Substring(0, 15);
+            else if (UsersRepository.lastRegUser.VillageCode != null)
+                precode = UsersRepository.lastRegUser.VillageCode.Substring(0, 15);
+            else if (UsersRepository.lastRegUser.CityCode != null)
+                precode = UsersRepository.lastRegUser.CityCode.Substring(0, 15);
+            else if (UsersRepository.lastRegUser.RayonCode != null)
+                precode = UsersRepository.lastRegUser.RayonCode.Substring(0, 15);
+            else if (UsersRepository.lastRegUser.OblastCode != null)
+                precode = UsersRepository.lastRegUser.OblastCode.Substring(0, 15);
             else
                 return RedirectToAction("Index");
 
@@ -278,80 +299,46 @@ namespace DBTask.Controllers
                     EF.Functions.Like(x.Code, $"{houseAndFlatModel.Precode}%") &&
                     EF.Functions.Like(x.Name, $"%{houseAndFlatModel.House}%"));
 
-            _repo.AddHouseAndFlat(houseAndFlatModel.House, houseAndFlatModel.Flat, houses?.Index);
+            _repo.AddHouseAndFlat(houseAndFlatModel.House, houseAndFlatModel.Flat, houses?.Index, UsersRepository.lastRegUser);
             return RedirectToAction("Index");
         }
 
         public IActionResult DeleteRegion()
         {
-            _repo.DeleteRegion();
+            _repo.DeleteRegion(UsersRepository.lastRegUser);
             return RedirectToAction("Index");
         }
 
         public IActionResult DeleteRayon()
         {
-            _repo.DeleteRayon();
+            _repo.DeleteRayon(UsersRepository.lastRegUser);
             return RedirectToAction("Index");
         }
 
         public IActionResult DeleteCity()
         {
-            _repo.DeleteCity();
+            _repo.DeleteCity(UsersRepository.lastRegUser);
             return RedirectToAction("Index");
         }
 
         public IActionResult DeleteVillage()
         {
-            _repo.DeleteVillage();
+            _repo.DeleteVillage(UsersRepository.lastRegUser);
             return RedirectToAction("Index");
         }
 
         public IActionResult DeleteStreet()
         {
-            _repo.DeleteStreet();
+            _repo.DeleteStreet(UsersRepository.lastRegUser);
             return RedirectToAction("Index");
         }
 
 
         public IActionResult DeleteHouseAndFlat()
         {
-            _repo.DeleteHouseAndFlat();
+            _repo.DeleteHouseAndFlat(UsersRepository.lastRegUser);
             return RedirectToAction("Index");
         }
     }
 
-    public class HouseAndFlatModel
-    {
-        public HouseAndFlatModel()
-        {
-        }
-
-        public HouseAndFlatModel(SelectList itemsList, string precode)
-        {
-            ItemsList = itemsList;
-            Precode = precode;
-        }
-
-        public string House { get; set; }
-        public string Flat { get; set; }
-        public SelectList ItemsList { get; set; }
-        public string Precode { get; set; }
-    }
-
-    public class AddressModel
-    {
-        public AddressModel()
-        {
-        }
-
-        public AddressModel(SelectList itemsList)
-        {
-            ItemsList = itemsList;
-        }
-
-        //public CodeAndName SelectedValue { get; set; }
-        public string Code { get; set; }
-
-        public SelectList ItemsList { get; set; }
-    }
 }

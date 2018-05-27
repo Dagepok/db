@@ -1,59 +1,55 @@
 ﻿@model DBTask.Models.Users
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Адрес  ";
 }
 
-<h2>Index</h2>
+<h2>Адрес</h2>
 
-<table class="table table-striped">
-    <tbody>
-    <tr>
-        <td>Имя</td>
-        <td>@Model.Fullname</td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>Индекс</td>
-        <td>@Model.Index</td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>Регион</td>
-        <td>@Model.Oblast</td>
-        <td>@Html.ActionLink("Изменить", "ChangeRegion")</td>
-        <td>@Html.ActionLink("Удалить", "DeleteRegion")</td>
-    </tr>
-    <tr>
-        <td>Район</td>
-        <td>@Model.Rayon</td>
-        <td>@Html.ActionLink("Изменить", "ChangeRayon")</td>
-        <td>@Html.ActionLink("Удалить", "DeleteRayon")</td>
-    </tr>
-    <tr>
-        <td>Город</td>
-        <td>@Model.City</td>
-        <td>@Html.ActionLink("Изменить", "ChangeCity")</td>
-        <td>@Html.ActionLink("Удалить", "DeleteCity")</td>
-    </tr>
-    <tr>
-        <td>Населенный пункт</td>
-        <td>@Model.Village</td>
-        <td>@Html.ActionLink("Изменить", "ChangeVillage")</td>
-        <td>@Html.ActionLink("Удалить", "DeleteVillage")</td>
-    </tr>
-    <tr class="">
-        <td>Улица</td>
-        <td>@Model.Street</td>
-        <td>@Html.ActionLink("Изменить", "ChangeStreet")</td>
-        <td>@Html.ActionLink("Удалить", "DeleteStreet")</td>
-    </tr>
-    <tr class="">
-        <td>Номер дома и квартиры</td>
-        <td>@Model.House-@Model.Flat</td>
-        <td>@Html.ActionLink("Изменить", "ChangeHouseAndFlat")</td>
-        <td>@Html.ActionLink("Удалить", "DeleteHouseAndFlat")</td>
-    </tr>
-    </tbody>
-</table>
+<div class="list-inline">
+        <br>
+        <div>
+            Регион:
+            @Model.Oblast
+            @Html.ActionLink("Изменить", "ChangeRegion")
+            @Html.ActionLink("Удалить", "DeleteRegion")
+        </div>
+        <br>
+        <div>
+            Район:
+            @Model.Rayon
+            @Html.ActionLink("Изменить", "ChangeRayon")
+            @Html.ActionLink("Удалить", "DeleteRayon")
+        </div>
+        <br>
+        <div>
+            Город:
+            @Model.City
+            @Html.ActionLink("Изменить", "ChangeCity")
+            @Html.ActionLink("Удалить", "DeleteCity")
+        </div>
+        <br>
+    <div>
+        Населенный пункт:
+        @Model.Village
+        @Html.ActionLink("Изменить", "ChangeVillage")
+        @Html.ActionLink("Удалить", "DeleteVillage")
+    </div>
+    <br />
+    <div>
+        Улица:
+        @Model.Street
+        @Html.ActionLink("Изменить", "ChangeStreet")
+        @Html.ActionLink("Удалить", "DeleteStreet")
+    </div>
+    <br />
+        <div>
+            Номер дома и квартиры:
+            @Model.House-@Model.Flat
+            @Html.ActionLink("Изменить", "ChangeHouseAndFlat")
+            @Html.ActionLink("Удалить", "DeleteHouseAndFlat")
+        </div>
+        <br>
+        <br>
+        Индекс : @Model.Index
+        <br>
+</div>
