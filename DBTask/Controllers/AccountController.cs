@@ -85,13 +85,14 @@ namespace DBTask.Controllers
 
                 ModelState.AddModelError("", "Login or password are incorrect");
             }
-            return View(model);
+
+            return RedirectToAction("Error", "Home");
         }
 
         private async Task Authenticate(string login)
         {
             var claims = new List<Claim>
-            {
+            {   
                 new Claim(ClaimsIdentity.DefaultNameClaimType, login)
             };
 
