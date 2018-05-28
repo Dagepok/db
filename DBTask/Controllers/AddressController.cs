@@ -165,7 +165,7 @@ namespace DBTask.Controllers
             }
             else if (_repo.GetCurrentUser().OblastCode != null)
             {
-                precode = _repo.GetCurrentUser().OblastCode.Substring(0, 8);
+                precode = _repo.GetCurrentUser().OblastCode.Substring(0, 7);
                 regionCode = _repo.GetCurrentUser().OblastCode;
             }
             else
@@ -173,11 +173,11 @@ namespace DBTask.Controllers
                 return RedirectToAction("Index");
             }
 
-            var regex = new Regex($"^{precode}[0-9]{{3}}00");
+            var regex = new Regex($"^{precode}");
 
-            var villages = _context.Kladr
-                .Where(x => regex.IsMatch(x.Code) && x.Code != cityCode && x.Code != rayonCode && x.Code != regionCode)
-                .OrderBy(x => x.Name)
+            var village = _context.Kladr
+                .Where(x => regex.IsMatch(x.Code) && x.Code != cityCode && x.Code != rayonCode && x.Code != regionCode);
+             var villages = village.OrderBy(x => x.Name)
                 .Select(x => new SelectListItem
                 {
                     Value = x.Code,

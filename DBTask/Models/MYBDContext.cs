@@ -19,7 +19,7 @@ namespace DBTask.Models
             if (!optionsBuilder.IsConfigured)
             {
                 optionsBuilder.UseSqlServer(
-                    @"Server=.\SER;Database=MYBD;User Id=sa;Password=Qwer1234");
+                    @"Server=.;Database=MYBD;User Id=sa;Password=Qwer1234");
                 
             }
         }

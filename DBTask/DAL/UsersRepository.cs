@@ -1,7 +1,8 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using DBTask.Models;
 using Microsoft.AspNetCore.Http;
-
+using System.Text.RegularExpressions;
 namespace DBTask.DAL
 {
     public class UsersRepository
@@ -121,6 +122,7 @@ namespace DBTask.DAL
         {
             if (user is null)
                 user = GetCurrentUser();
+
             user.CityCode = code;
             user.City = name;
             if (index != null)
@@ -153,8 +155,12 @@ namespace DBTask.DAL
 
         public void AddVillage(string code, string name, string index, Users user = null)
         {
+
             if (user is null)
                 user = GetCurrentUser();
+            if (user.City is null)
+                GetCity(code, user);
+
             user.VillageCode = code;
             user.Village = name;
             if (index != null)
@@ -169,6 +175,18 @@ namespace DBTask.DAL
             _context.SaveChanges();
         }
 
+        private void GetCity(string code, Users user)
+        {
+            var reg = new Regex($"{string.Join("", code.Take(5))}00000000$");
+            var rayon = _context.Kladr.FirstOrDefault(x => reg.IsMatch(x.Code));
+            if (!(rayon is null) && rayon.Code != user.Oblast)
+                AddRayon(rayon.Code, rayon.Name, rayon.PostIndex, user);
+            var regex = new Regex($"{string.Join("", code.Take(8))}00000$");
+            var city = _context.Kladr.FirstOrDefault(x => regex.IsMatch(x.Code));
+            if (city is null)
+                return;
+            AddCity(city.Code, city.Name, city.PostIndex, user);
+        }
 
         public void DeleteVillage(Users user = null)
         {

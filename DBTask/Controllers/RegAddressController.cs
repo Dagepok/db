@@ -186,7 +186,7 @@ namespace DBTask.Controllers
             }
             else if (UsersRepository.lastRegUser.OblastCode != null)
             {
-                precode = UsersRepository.lastRegUser.OblastCode.Substring(0, 8);
+                precode = UsersRepository.lastRegUser.OblastCode.Substring(0, 7);
                 regionCode = UsersRepository.lastRegUser.OblastCode;
             }
             else
@@ -194,7 +194,7 @@ namespace DBTask.Controllers
                 return RedirectToAction("Index");
             }
 
-            var regex = new Regex($"^{precode}[0-9]{{3}}00");
+            var regex = new Regex($"^{precode}");
 
             var villages = _context.Kladr
                 .Where(x => regex.IsMatch(x.Code) && x.Code != cityCode && x.Code != rayonCode && x.Code != regionCode)
