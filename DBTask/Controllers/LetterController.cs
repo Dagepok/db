@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using DBTask.Models;
@@ -23,13 +24,16 @@ namespace DBTask.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            var users = _context.Users.Select(x => new SelectListItem
+            IEnumerable<SelectListItem> users = _context.Users.Select(x => new SelectListItem
             {
                 Value = x.Id.ToString(),
                 Text = x.Fullname
+
             });
             return View(new LetterModel(new SelectList(users, "Value", "Text")));
         }
+
+        
 
         [HttpPost]
         public IActionResult Index(LetterModel letterModel)
@@ -82,7 +86,7 @@ namespace DBTask.Controllers
 
             var house = user.House + (user.Flat != null ? " кв. " + user.Flat : "");
             foreach (var str in new[]
-                {user.Index, user.Oblast, user.Rayon, user.City, user.Village, user.Street, house, user.Fullname})
+                { user.Fullname,string.Join(", " , user.Street, house), user.Village,  user.City, user.Rayon,  user.Oblast,  user.Index  })
             {
                 if (string.IsNullOrEmpty(str)) continue;
                 var run = new Run(docx, str);

@@ -133,16 +133,19 @@ namespace DBTask.Controllers
             if (UsersRepository.lastRegUser.RayonCode == null && UsersRepository.lastRegUser.OblastCode == null)
                 return RedirectToAction("Index");
             var precode = UsersRepository.lastRegUser.RayonCode == null
-                ? UsersRepository.lastRegUser.OblastCode.Substring(0, 5)
+                ? UsersRepository.lastRegUser.OblastCode.Substring(0, 2)
                 : UsersRepository.lastRegUser.Rayon.Substring(0, 5);
-            var regex = new Regex($"{precode}[0-9]{{3}}00000");
+            var regex = precode.Length == 5
+                ? new Regex($"{precode}[0-9]{{3}}00000")
+                : new Regex($"{precode}[0-9]{{5}}[1-9]00000");
+
 
             var cities = _context.Kladr
                 .Where(x => regex.IsMatch(x.Code) && (UsersRepository.lastRegUser.OblastCode != null &&
                                                       UsersRepository.lastRegUser.OblastCode != x.Code ||
                                                       UsersRepository.lastRegUser.OblastCode == null) &&
                             (UsersRepository.lastRegUser.RayonCode != null && UsersRepository.lastRegUser.RayonCode != x.Code ||
-                             UsersRepository.lastRegUser.RayonCode == null))
+                             UsersRepository.lastRegUser.RayonCode == null) && x.Socr == "г")
                 .OrderBy(x => x.Name)
                 .Select(x => new SelectListItem
                 {
@@ -172,22 +175,18 @@ namespace DBTask.Controllers
 
         public IActionResult ChangeVillage()
         {
-            string precode, rayonCode, regionCode;
-            var cityCode = rayonCode = regionCode = "";
+            string precode;
             if (UsersRepository.lastRegUser.CityCode != null)
             {
                 precode = UsersRepository.lastRegUser.CityCode.Substring(0, 8);
-                cityCode = UsersRepository.lastRegUser.CityCode;
             }
             else if (UsersRepository.lastRegUser.RayonCode != null)
             {
-                precode = UsersRepository.lastRegUser.RayonCode.Substring(0, 8);
-                rayonCode = UsersRepository.lastRegUser.RayonCode;
+                precode = UsersRepository.lastRegUser.RayonCode.Substring(0, 5);
             }
             else if (UsersRepository.lastRegUser.OblastCode != null)
             {
-                precode = UsersRepository.lastRegUser.OblastCode.Substring(0, 7);
-                regionCode = UsersRepository.lastRegUser.OblastCode;
+                precode = UsersRepository.lastRegUser.OblastCode.Substring(0, 2);
             }
             else
             {
@@ -196,17 +195,18 @@ namespace DBTask.Controllers
 
             var regex = new Regex($"^{precode}");
 
+
             var villages = _context.Kladr
-                .Where(x => regex.IsMatch(x.Code) && x.Code != cityCode && x.Code != rayonCode && x.Code != regionCode)
+                .Where(x => regex.IsMatch(x.Code) && string.Join("", x.Code.TakeLast(4)) != "0000")
                 .OrderBy(x => x.Name)
-                .Select(x => new SelectListItem
-                {
-                    Value = x.Code,
-                    Text = x.Name + " " + _context.Socrbase.Where(y =>
-                                   int.Parse(y.Level) >= 3 && int.Parse(y.Level) <= 5 && x.Socr == y.Scname)
-                               .Select(y => y.Socrname).First()
-                })
-                .ToList();
+            .Select(x => new SelectListItem
+            {
+                Value = x.Code,
+                Text = x.Name + " " + _context.Socrbase.Where(y =>
+                               int.Parse(y.Level) >= 3 && int.Parse(y.Level) <= 5 && x.Socr == y.Scname)
+                           .Select(y => y.Socrname).FirstOrDefault()
+            })
+            .ToList();
 
             if (villages.Count == 0)
                 return RedirectToAction("Index");

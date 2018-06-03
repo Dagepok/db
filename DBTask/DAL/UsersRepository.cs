@@ -118,11 +118,12 @@ namespace DBTask.DAL
             _context.SaveChanges();
         }
 
-        public void AddCity(string code, string name, string index, Users user = null)
+        public void AddCity(string code, string name, string index, Users user = null, string villageCode = "")
         {
             if (user is null)
                 user = GetCurrentUser();
 
+            GetRayon(villageCode, code, user);
             user.CityCode = code;
             user.City = name;
             if (index != null)
@@ -158,8 +159,8 @@ namespace DBTask.DAL
 
             if (user is null)
                 user = GetCurrentUser();
-            if (user.City is null)
-                GetCity(code, user);
+
+            GetCity(code, user);
 
             user.VillageCode = code;
             user.Village = name;
@@ -177,15 +178,25 @@ namespace DBTask.DAL
 
         private void GetCity(string code, Users user)
         {
+            if (!(user.City is null)) return;
+
+            var regex = new Regex($"{string.Join("", code.Take(8))}00000$");
+            var city = _context.Kladr.FirstOrDefault(x => regex.IsMatch(x.Code) && string.Join("", x.Code.Skip(5).Take(3)) != "000");
+
+            if (city != null)
+                AddCity(city.Code, city.Name, city.PostIndex, user);
+            else if (user.Rayon is null)
+                GetRayon(code, "", user);
+        }
+
+        private void GetRayon(string villageCode, string cityCode, Users user)
+        {
+            if (!(user.RayonCode is null)) return;
+            var code = villageCode.Length == 0 ? cityCode : villageCode;
             var reg = new Regex($"{string.Join("", code.Take(5))}00000000$");
             var rayon = _context.Kladr.FirstOrDefault(x => reg.IsMatch(x.Code));
-            if (!(rayon is null) && rayon.Code != user.Oblast)
+            if (!(rayon is null) && rayon.Code != user.OblastCode)
                 AddRayon(rayon.Code, rayon.Name, rayon.PostIndex, user);
-            var regex = new Regex($"{string.Join("", code.Take(8))}00000$");
-            var city = _context.Kladr.FirstOrDefault(x => regex.IsMatch(x.Code));
-            if (city is null)
-                return;
-            AddCity(city.Code, city.Name, city.PostIndex, user);
         }
 
         public void DeleteVillage(Users user = null)

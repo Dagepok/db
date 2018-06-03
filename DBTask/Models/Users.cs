@@ -2,6 +2,12 @@
 {
     public class Users
     {
+        public Users()
+        {
+            Oblast = "Свердловская Область";
+            OblastCode = "6600000000000";
+        }   
+
         public int Id { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
@@ -21,7 +27,6 @@
         public string VillageCode { get; set; }
         public string Index { get; set; }
     }
-
     public enum UserType
     {
         User = 0,

@@ -52,7 +52,7 @@ namespace DBTask.Controllers
             if (sverdl != null)
             {
                 var oldRegions = regions;
-                regions = new List<SelectListItem> {sverdl};
+                regions = new List<SelectListItem> { sverdl };
                 oldRegions.Remove(sverdl);
                 regions.AddRange(oldRegions);
             }
@@ -156,17 +156,14 @@ namespace DBTask.Controllers
             if (_repo.GetCurrentUser().CityCode != null)
             {
                 precode = _repo.GetCurrentUser().CityCode.Substring(0, 8);
-                cityCode = _repo.GetCurrentUser().CityCode;
             }
             else if (_repo.GetCurrentUser().RayonCode != null)
             {
-                precode = _repo.GetCurrentUser().RayonCode.Substring(0, 8);
-                rayonCode = _repo.GetCurrentUser().RayonCode;
+                precode = _repo.GetCurrentUser().RayonCode.Substring(0, 5);
             }
             else if (_repo.GetCurrentUser().OblastCode != null)
             {
-                precode = _repo.GetCurrentUser().OblastCode.Substring(0, 7);
-                regionCode = _repo.GetCurrentUser().OblastCode;
+                precode = _repo.GetCurrentUser().OblastCode.Substring(0, 2);
             }
             else
             {
@@ -175,15 +172,15 @@ namespace DBTask.Controllers
 
             var regex = new Regex($"^{precode}");
 
-            var village = _context.Kladr
-                .Where(x => regex.IsMatch(x.Code) && x.Code != cityCode && x.Code != rayonCode && x.Code != regionCode);
-             var villages = village.OrderBy(x => x.Name)
+            var villages = _context.Kladr
+                .Where(x => regex.IsMatch(x.Code) && string.Join("", x.Code.TakeLast(4)) != "0000")
+                .OrderBy(x => x.Name)
                 .Select(x => new SelectListItem
                 {
                     Value = x.Code,
                     Text = x.Name + " " + _context.Socrbase.Where(y =>
                                    int.Parse(y.Level) >= 3 && int.Parse(y.Level) <= 5 && x.Socr == y.Scname)
-                               .Select(y => y.Socrname).First()
+                               .Select(y => y.Socrname).FirstOrDefault()
                 })
                 .ToList();
 
